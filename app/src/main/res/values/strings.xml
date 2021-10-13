@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MingleSports</string>
+    <string name="tab1">Airports</string>
+    <string name="tab2">Flights</string>
+    <string name="tab3">Settings</string>
+</resources>
