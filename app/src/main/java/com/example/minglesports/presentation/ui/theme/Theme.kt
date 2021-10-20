@@ -27,6 +27,8 @@ private val LightColorPalette = lightColors(
     */
 )
 
+
+
 @Composable
 fun MingleSportsTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {

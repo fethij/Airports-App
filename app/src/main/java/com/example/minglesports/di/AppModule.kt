@@ -1,7 +1,7 @@
 package com.example.minglesports.di
 
 import com.example.minglesports.common.Constants
-import com.example.minglesports.data.remote.AirportApi
+import com.example.minglesports.data.remote.AirportFlightApi
 import com.example.minglesports.data.repository.AirportRepositoryImpl
 import com.example.minglesports.data.repository.FlightRepositoryImpl
 import com.example.minglesports.domain.repository.AirportRepository
@@ -15,33 +15,28 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
-//This dependencies live as long as our application
+//This dependencies live as long as the application
 @InstallIn(SingletonComponent::class)
 object AppModule{
-
     @Provides
     @Singleton
-    fun provideAirportApi(): AirportApi{
+    fun provideAirportApi(): AirportFlightApi{
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(AirportApi::class.java)
+            .create(AirportFlightApi::class.java)
     }
 
     @Provides
-    //TODO uitleg singelton
     @Singleton
-    fun provideairportRepository(api: AirportApi): AirportRepository{
-        return AirportRepositoryImpl(api)
+    fun provideAirportRepository(flightApi: AirportFlightApi): AirportRepository{
+        return AirportRepositoryImpl(flightApi)
     }
 
     @Provides
-    //TODO uitleg singelton
     @Singleton
-    fun provideFlightRepository(api: AirportApi): FlightRepository{
-        return FlightRepositoryImpl(api)
+    fun provideFlightRepository(flightApi: AirportFlightApi): FlightRepository{
+        return FlightRepositoryImpl(flightApi)
     }
-
-
 }

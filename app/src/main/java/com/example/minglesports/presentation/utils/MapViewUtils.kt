@@ -8,7 +8,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.Transformations.map
 import com.example.minglesports.R
 import com.google.android.libraries.maps.MapView
 
@@ -23,7 +22,6 @@ fun rememberMapViewWithLifecycle(): MapView {
             id = R.id.map
         }
     }
-
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle, mapView) {
         // Make MapView follow the current lifecycle

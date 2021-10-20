@@ -1,6 +1,8 @@
 package com.example.minglesports
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,8 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.minglesports.common.Constants
 import com.example.minglesports.presentation.Settings.SettingTab
-import com.example.minglesports.presentation.airportMapList.components.AirportTab
+import com.example.minglesports.presentation.airportMapList.AirportTab
 import com.example.minglesports.presentation.airportsFromSchiphol.FlightsTab
 import com.example.minglesports.presentation.ui.theme.MingleSportsTheme
 import com.example.minglesports.presentation.ui.theme.PrimaryLightThemeColor
@@ -24,16 +27,40 @@ import com.example.minglesports.presentation.ui.theme.WhiteColor
 import com.google.accompanist.pager.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.*
 
 
+@Suppress("DEPRECATION")
 @ExperimentalPagerApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sharedPreferences: SharedPreferences = this.getSharedPreferences(Constants.LNG,Context.MODE_PRIVATE)
+        val lng = sharedPreferences.getString(Constants.LNG,Constants.ENGLISH)
+        if (lng.equals(Constants.ENGLISH))
+        {
+            val locale = Locale(Constants.ENG)
+            Locale.setDefault(locale)
+            val config: Configuration = resources.configuration
+            config.locale = locale
+            resources.updateConfiguration(
+                config,
+                resources.displayMetrics
+            )
+        }else
+        {
+            val locale = Locale(Constants.NL)
+            Locale.setDefault(locale)
+            val config: Configuration = resources.configuration
+            config.locale = locale
+            resources.updateConfiguration(
+                config,
+                resources.displayMetrics
+            )
+        }
         setContent {
             MingleSportsTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
@@ -44,7 +71,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 @ExperimentalPagerApi
 @Composable

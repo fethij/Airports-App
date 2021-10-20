@@ -4,8 +4,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.minglesports.R
+import com.example.minglesports.common.Constants
 import com.example.minglesports.common.Resource
 import com.example.minglesports.domain.model.Airport
+import com.example.minglesports.domain.model.Flight
 import com.example.minglesports.domain.model.FlightsDistanceModel
 import com.example.minglesports.domain.use_case.get_flights.GetFlightUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +39,7 @@ class AirportsFromSchipholViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     _state.value = FlightsState(
-                        error = result.message ?: "An unexpected error occurred"
+                        error = (result.message ?: R.string.httpException) as String
                     )
                 }
                 is Resource.Loading -> {
@@ -47,17 +50,30 @@ class AirportsFromSchipholViewModel @Inject constructor(
     }
 
     fun getSortedList(airportsList: List<Airport>?): List<FlightsDistanceModel> {
-       // getFlights()
         val distances: ArrayList<FlightsDistanceModel> = ArrayList()
+        var noRepeat: ArrayList<Flight> = ArrayList()
+
+        for (flight in state.value.flights) {
+            var isFound = false
+            // checks if the event name exists in noRepeat
+            for (e in noRepeat) {
+                if (e.arrivalAirportId.equals(flight.arrivalAirportId) || e.equals(flight)) {
+                    isFound = true
+                    break
+                }
+            }
+            if (!isFound) noRepeat.add(flight)
+        }
 
         //Schiphol Airport Coordinates
-        val lat1 = 52.30907
-        val long2 = 4.763385
-        for (flight in state.value.flights) {
+        val lat1 = Constants.SCHIPHOL_LAT
+        val long2 = Constants.SCHIPHOL_LONG
+
+        for (flight in noRepeat) {
 
             for (airport in airportsList!!) {
-//TODO "AMS" in een variable zetten
-                if (flight.departureAirportId == "AMS" && flight.arrivalAirportId == airport.id
+                if (flight.departureAirportId == Constants.SCHIPHOL
+                    && flight.arrivalAirportId == airport.id
                 ) {
                     if (distance(
                             lat1,
@@ -80,10 +96,8 @@ class AirportsFromSchipholViewModel @Inject constructor(
                 }
             }
         }
-        return distances.sortedWith(compareBy { it.distance })
-
-
-      //  return emptyList()
+        var sortedList = distances.sortedWith(compareBy({ it.distance }))
+        return sortedList
     }
 
     private fun distance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {

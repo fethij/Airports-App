@@ -1,5 +1,6 @@
 package com.example.minglesports.domain.use_case.get_airports
 
+import com.example.minglesports.R
 import com.example.minglesports.common.Resource
 import com.example.minglesports.data.remote.dto.toAirport
 import com.example.minglesports.domain.model.Airport
@@ -19,10 +20,9 @@ class GetAirportUseCase @Inject constructor(
             val airports = repository.getAirports().map { it.toAirport() }
             emit(Resource.Success<List<Airport>>(airports))
         } catch (e: HttpException){
-            emit(Resource.Error<List<Airport>>(e.localizedMessage ?: "An unexpected error occured"))
+            emit(Resource.Error<List<Airport>>((e.localizedMessage ?: R.string.httpException).toString()))
         }catch (e: IOException){
-            emit(Resource.Error<List<Airport>>("Couldn't reach server. Check your internet connection."))
+            emit(Resource.Error<List<Airport>>(R.string.ioException.toString()))
         }
     }
-
 }

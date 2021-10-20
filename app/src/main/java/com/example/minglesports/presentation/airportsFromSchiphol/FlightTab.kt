@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,33 +26,27 @@ import com.example.minglesports.presentation.ui.theme.PrimaryLightThemeColor
 import com.example.minglesports.presentation.ui.theme.PrimaryThemeColor
 import com.example.minglesports.presentation.ui.theme.WhiteColor
 
-
 @Composable
 fun FlightsTab(
     context: Context,
     FlyViewModel: AirportsFromSchipholViewModel = hiltViewModel(),
     AirportViewModel: AirportMapListViewModel = hiltViewModel()
 ) {
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
-
         getFlights(
             airportViewModel = AirportViewModel,
             flyViewModel = FlyViewModel,
             context
         )
-
     }
 }
 
 @Composable
 fun getFlights(
-    //TODO = hiltviewModel() miss niet nodig, controleer overal
     airportViewModel: AirportMapListViewModel,
     flyViewModel: AirportsFromSchipholViewModel,
     context: Context
@@ -81,7 +76,6 @@ fun FlightList(list: List<FlightsDistanceModel>, context: Context) {
 
 @Composable
 fun FlightRow(flight: Int, list: List<FlightsDistanceModel>, context: Context) {
-
     Row(
         Modifier
             .fillMaxSize()
@@ -98,88 +92,78 @@ fun FlightRow(flight: Int, list: List<FlightsDistanceModel>, context: Context) {
                     .background(PrimaryLightThemeColor)
                     .padding(10.dp)
             ) {
-//                Image(
-//
-//                    painterResource(R.drawable.airport),
-//                    contentDescription = "",
-//                    contentScale = ContentScale.Fit,
-//                    modifier = Modifier.size(100.dp),
-//                )
-                val sharedPreferences: SharedPreferences =
-                    context.getSharedPreferences("dis", Context.MODE_PRIVATE)
-                val dis = sharedPreferences.getString("dis", "km")
-                if (dis.equals("km")) {
-                    Column() {
+                Column() {
+                    Row() {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_airplanemode_active_24),
+                            "",
+                            tint = WhiteColor
+                        )
+                        Spacer(modifier = Modifier.padding(3.dp))
+                        Text(
+                            text = list[flight].airport.name,
+                            color = WhiteColor,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Spacer(modifier = Modifier.padding(5.dp))
+                    Row() {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_location_city_24),
+                            "",
+                            tint = WhiteColor
+                        )
+                        Spacer(modifier = Modifier.padding(3.dp))
+                        Text(text = list[flight].airport.city, color = WhiteColor)
+                    }
+                    Spacer(modifier = Modifier.padding(5.dp))
+
+                    val sharedPreferences: SharedPreferences =
+                        context.getSharedPreferences(
+                            stringResource(id = R.string.distanceSP),
+                            Context.MODE_PRIVATE
+                        )
+                    val dis = sharedPreferences.getString(
+                        stringResource(id = R.string.distanceSP),
+                        stringResource(id = R.string.km)
+                    )
+                    if (dis.equals(stringResource(id = R.string.km))) {
                         Row() {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_airplanemode_active_24), "", tint = WhiteColor)
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_connecting_airports_24),
+                                "",
+                                tint = WhiteColor
+                            )
                             Spacer(modifier = Modifier.padding(3.dp))
                             Text(
-                                text = list[flight].airport.name,
-                                color = WhiteColor,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = Math.round(list[flight].distance).toString()
+                                        + " "
+                                        + stringResource(id = R.string.km)
+                                        + " "
+                                        + stringResource(id = R.string.fromSchiphol),
+                                color = WhiteColor
                             )
                         }
-                        Spacer(modifier = Modifier.padding(5.dp))
+                    } else {
                         Row() {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_location_on_24), "", tint = WhiteColor)
-                            Spacer(modifier = Modifier.padding(3.dp))
-                            Text(text = list[flight].airport.city, color = WhiteColor)
-                        }
-                        Spacer(modifier = Modifier.padding(5.dp))
-                        Row() {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_airline_stops_24), "", tint = WhiteColor)
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_connecting_airports_24),
+                                "",
+                                tint = WhiteColor
+                            )
                             Spacer(modifier = Modifier.padding(3.dp))
                             Text(
-                                text = list[flight].distance.toString() + " km",
+                                text = Math.round((list[flight].distance * 0.621371)).toString()
+                                        + " "
+                                        + stringResource(id = R.string.miles)
+                                        + " "
+                                        + stringResource(id = R.string.fromSchiphol),
                                 color = WhiteColor
                             )
                         }
                     }
-
-//                    Text(
-//                        text = "Airport Name : " + list[flight].airport.name
-//                                + "\nCity : " + list[flight].airport.city
-//                                + "\nDistance : " + list[flight].distance + " km",
-//                        color = WhiteColor
-//                    )
-                } else {
-
-                    Column() {
-                        Row() {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_airplanemode_active_24), "", tint = WhiteColor)
-                            Spacer(modifier = Modifier.padding(3.dp))
-                            Text(
-                                text = list[flight].airport.name,
-                                color = WhiteColor,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                        Spacer(modifier = Modifier.padding(5.dp))
-                        Row() {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_location_on_24), "", tint = WhiteColor)
-                            Spacer(modifier = Modifier.padding(3.dp))
-                            Text(text = list[flight].airport.city, color = WhiteColor)
-                        }
-                        Spacer(modifier = Modifier.padding(5.dp))
-                        Row() {
-                            Icon(painter = painterResource(id = R.drawable.ic_baseline_airline_stops_24), "", tint = WhiteColor)
-                            Spacer(modifier = Modifier.padding(3.dp))
-                            Text(
-                                text = list[flight].distance.toString() + " km",
-                                color = WhiteColor
-                            )
-                        }
-                    }
-//                    Text(
-//                        text = "Airport Name : " + list[flight].airport.name
-//                                + "\nCity : " + list[flight].airport.city
-//                                + "\nDistance : " + ((list[flight].distance * 0.621371) * 100.0).roundToInt() / 100.0 + " miles",
-//                        color = WhiteColor
-//                    )
                 }
-
             }
         }
     }

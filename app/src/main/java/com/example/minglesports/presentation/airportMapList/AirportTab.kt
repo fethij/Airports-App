@@ -1,4 +1,4 @@
-package com.example.minglesports.presentation.airportMapList.components
+package com.example.minglesports.presentation.airportMapList
 
 import android.content.Context
 import android.content.Intent
@@ -11,10 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
+import com.example.minglesports.R
 import com.example.minglesports.domain.model.Airport
-import com.example.minglesports.domain.use_case.get_airports.GetAirportUseCase
-import com.example.minglesports.presentation.airportMapList.AirportMapListViewModel
+import com.example.minglesports.presentation.AirportDetail.AirPortDetail
+import com.example.minglesports.presentation.airportMapList.components.rememberMapViewWithLifecycle
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
@@ -27,16 +28,12 @@ fun AirportTab(
     context: Context,
     viewModel: AirportMapListViewModel = hiltViewModel(),
 ) {
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
-
         ShowAirports(viewModel = viewModel, context = context)
-
     }
 }
 
@@ -46,40 +43,51 @@ fun ShowAirports(
     context: Context
 ) {
     viewModel.state.value.airports
+    //viewModel.FurthestAirport()
+    viewModel.furthestAirports
     AirportsInMap(
         context,
+        viewModel.furthestAirports,
         viewModel.state.value.airports,
         Modifier.fillMaxSize()
     )
 }
 
 @Composable
-fun AirportsInMap(context: Context, airportList: List<Airport>, modifier: Modifier) {
+fun AirportsInMap(
+    context: Context,
+    furthestAirports: List<Airport>,
+    airportList: List<Airport>,
+    modifier: Modifier
+) {
     Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
-
-        MapView(airportList, context)
+        MapView(airportList, context, furthestAirports)
     }
-
 }
 
-
 @Composable
-private fun MapView(airportList: List<Airport>?, context: Context) {
+private fun MapView(
+    airportList: List<Airport>?,
+    context: Context,
+    furthestAirports: List<Airport>
+) {
     // The MapView lifecycle is handled by this composable. As the MapView also needs to be updated
     // with input from Compose UI, those updates are encapsulated into the MapViewContainer
     // composable. In this way, when an update to the MapView happens, this composable won't
     // recompose and the MapView won't need to be recreated.
     val mapView = rememberMapViewWithLifecycle()
-    MapViewContainer(mapView, airportList, context)
+    MapViewContainer(mapView, airportList, context, furthestAirports)
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun MapViewContainer(
     map: MapView,
-    airportList: List<Airport>?, context: Context
+    airportList: List<Airport>?,
+    context: Context,
+    furthestAirports: List<Airport>,
+    viewModel: AirportMapListViewModel = hiltViewModel()
 ) {
-
-
     val coroutineScope = rememberCoroutineScope()
     AndroidView({ map }) { mapView ->
         // Reading zoom so that AndroidView recomposes when it changes. The getMapAsync lambda
@@ -88,41 +96,53 @@ private fun MapViewContainer(
             val googleMap = mapView.awaitMap()
             // Zoom Controls in map
             googleMap.uiSettings.isZoomControlsEnabled = true
-
             if (airportList != null) {
-                for (airport in airportList) {
-
+                for (airport in furthestAirports) {
                     googleMap.addMarker {
-
-                        /*MarkerOptions().position(LatLng(airport.latitude, airport.longitude))
-                        .title(airport.name)
-                        .snippet(airport.city)
-                        .draggable(true)*/
                         position(LatLng(airport.latitude, airport.longitude))
-                    }
-                    googleMap.moveCamera(
-                        CameraUpdateFactory.newLatLng(
-                            LatLng(
-                                airport.latitude,
-                                airport.longitude
+                            .icon(
+                                viewModel.bitmapDescriptorFromVector(
+                                    context,
+                                    R.drawable.ic_baseline_local_airport_55
+                                )
                             )
-                        )
-                    )
-                    googleMap.setOnMarkerClickListener { marker ->
-                        if (marker.isInfoWindowShown) {
-                            marker.hideInfoWindow()
-
-                        } else {
-                            marker.showInfoWindow()
-                        }
-//                        val intent = Intent(context, AirPortDetail::class.java)
-//                        intent.putExtra("lat", marker.position.latitude)
-//                        intent.putExtra("long", marker.position.longitude)
-//                        context.startActivity(intent)
-                        true
                     }
                 }
+                for (airport in airportList) {
+                    if (!furthestAirports.contains(airport)) {
+                        googleMap.addMarker {
 
+                            position(LatLng(airport.latitude, airport.longitude))
+                                .icon(
+                                    viewModel.bitmapDescriptorFromVector(
+                                        context,
+                                        R.drawable.ic_baseline_local_airport_lighter_24
+                                    )
+                                )
+                        }
+                        googleMap.moveCamera(
+                            CameraUpdateFactory.newLatLng(
+                                LatLng(
+                                    airport.latitude,
+                                    airport.longitude
+                                )
+                            )
+                        )
+                        googleMap.setOnMarkerClickListener { marker ->
+                            if (marker.isInfoWindowShown) {
+                                marker.hideInfoWindow()
+
+                            } else {
+                                marker.showInfoWindow()
+                            }
+                            val intent = Intent(context, AirPortDetail::class.java)
+                            intent.putExtra(R.string.lat.toString(), marker.position.latitude)
+                            intent.putExtra(R.string.lon.toString(), marker.position.longitude)
+                            context.startActivity(intent)
+                            true
+                        }
+                    }
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.minglesports.domain.use_case.get_flights
 
+import com.example.minglesports.R
 import com.example.minglesports.common.Resource
 import com.example.minglesports.data.remote.dto.toFlight
 import com.example.minglesports.domain.model.Flight
@@ -16,12 +17,13 @@ class GetFlightUseCase @Inject constructor(
     operator fun invoke(): Flow<Resource<List<Flight>>> = flow {
         try {
             emit(Resource.Loading<List<Flight>>())
-            val flights = repository.getFlights().map { it.toFlight() }
+            val flights = repository.
+            getFlights().map { it.toFlight() }
             emit(Resource.Success<List<Flight>>(flights))
         } catch (e: HttpException){
-            emit(Resource.Error<List<Flight>>(e.localizedMessage ?: "An unexpected error occured"))
+            emit(Resource.Error<List<Flight>>((e.localizedMessage ?: R.string.httpException).toString()))
         }catch (e: IOException){
-            emit(Resource.Error<List<Flight>>("Couldn't reach server. Check your internet connection."))
+            emit(Resource.Error<List<Flight>>(R.string.ioException.toString()))
         }
     }
 }
