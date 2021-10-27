@@ -1,6 +1,6 @@
 # Airports App
 
-# Techstack
+# Tech Stack
 Tech Stack = Dagger Hilt, Coroutines, Retrofit, Accompanist, MVVM, Clean Arch*, Compose.
 #
 
